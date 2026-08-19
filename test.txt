@@ -1,0 +1,95 @@
+# Bitácora de pruebas — Desktop MCP
+
+Formato: una entrada JSON por línea (append-only). Las entradas del cliente de
+prueba (`test_client.py`) se escriben acá automáticamente; los comentarios del
+desarrollador se anotan como líneas que empiezan con `#`.
+
+Campos: ts (ISO), event | tool | ok, result/error/note.
+{"ts": "2026-08-18T23:30:32", "event": "run_start", "url": "http://127.0.0.1:3001/mcp", "auth": false}
+{"ts": "2026-08-18T23:30:32", "event": "initialize_ok"}
+{"ts": "2026-08-18T23:30:32", "event": "list_tools", "count": 18, "missing": []}
+{"ts": "2026-08-18T23:30:32", "tool": "check_permissions", "ok": true, "result": "{\n  \"accessibility\": true,\n  \"screen_recording\": true,\n  \"note\": \"Grant both to the terminal app running the server under System Settings > Privacy & Security, then restart the server.\"\n}"}
+{"ts": "2026-08-18T23:30:32", "tool": "get_screen_size", "ok": true, "result": "{\n  \"width\": 1920,\n  \"height\": 1080\n}"}
+{"ts": "2026-08-18T23:30:32", "tool": "mouse_position", "ok": true, "result": "{\n  \"x\": 710,\n  \"y\": 355\n}"}
+{"ts": "2026-08-18T23:30:37", "tool": "list_windows", "ok": false, "error": "SSE stream ended without a response"}
+{"ts": "2026-08-18T23:30:40", "tool": "move_mouse", "ok": true, "result": "Mouse moved to (100, 100)", "note": "visible input event - cursor should have moved"}
+{"ts": "2026-08-18T23:30:40", "tool": "screenshot", "ok": false, "error": "SSE stream ended without a response"}
+{"ts": "2026-08-18T23:30:40", "event": "run_end"}
+{"ts": "2026-08-18T23:31:06", "event": "run_start", "url": "http://127.0.0.1:3101/mcp", "auth": false}
+{"ts": "2026-08-18T23:31:06", "event": "initialize_ok"}
+{"ts": "2026-08-18T23:31:06", "event": "list_tools", "count": 18, "missing": []}
+{"ts": "2026-08-18T23:31:06", "tool": "check_permissions", "ok": true, "result": "{\n  \"accessibility\": true,\n  \"screen_recording\": false,\n  \"note\": \"Grant both to the terminal app running the server under System Settings > Privacy & Security, then restart the server.\"\n}"}
+{"ts": "2026-08-18T23:31:06", "tool": "get_screen_size", "ok": true, "result": "{\n  \"width\": 1920,\n  \"height\": 1080\n}"}
+{"ts": "2026-08-18T23:31:06", "tool": "mouse_position", "ok": true, "result": "{\n  \"x\": 100,\n  \"y\": 100\n}"}
+{"ts": "2026-08-18T23:31:11", "tool": "list_windows", "ok": false, "error": "SSE stream ended without a response"}
+{"ts": "2026-08-18T23:31:12", "tool": "move_mouse", "ok": true, "result": "Mouse moved to (100, 100)", "note": "visible input event - cursor should have moved"}
+{"ts": "2026-08-18T23:31:12", "tool": "screenshot", "ok": false, "error": "no image content block in response: [TextContent(type='text', text=\"Error executing tool screenshot: Command '['screencapture', '-x', '/var/folders/r9/xl6x4y8x0373g62v3159bk000000gn/T/tmp69u7zwhj.png']' returned non-zero exit status 1.\", annotations=None, meta=None)]"}
+{"ts": "2026-08-18T23:31:12", "event": "run_end"}
+{"ts": "2026-08-18T23:34:16", "event": "run_start", "url": "http://127.0.0.1:3101/mcp", "auth": false}
+{"ts": "2026-08-18T23:34:16", "event": "initialize_ok"}
+{"ts": "2026-08-18T23:34:16", "event": "list_tools", "count": 18, "missing": []}
+{"ts": "2026-08-18T23:34:16", "tool": "check_permissions", "ok": true, "result": "{\n  \"accessibility\": true,\n  \"screen_recording\": true,\n  \"note\": \"Grant both to the terminal app running the server under System Settings > Privacy & Security, then restart the server.\"\n}"}
+{"ts": "2026-08-18T23:34:16", "tool": "get_screen_size", "ok": true, "result": "{\n  \"width\": 1920,\n  \"height\": 1080\n}"}
+{"ts": "2026-08-18T23:34:16", "tool": "mouse_position", "ok": true, "result": "{\n  \"x\": 655,\n  \"y\": 165\n}"}
+{"ts": "2026-08-18T23:34:21", "tool": "list_windows", "ok": false, "error": "SSE stream ended without a response"}
+{"ts": "2026-08-18T23:34:22", "tool": "move_mouse", "ok": true, "result": "Mouse moved to (100, 100)", "note": "visible input event - cursor should have moved"}
+{"ts": "2026-08-18T23:34:22", "tool": "screenshot", "ok": true, "bytes": 209137, "saved": "/Users/jesus/Desktop-MCP/test_screenshot.png"}
+{"ts": "2026-08-18T23:34:22", "event": "run_end"}
+{"ts": "2026-08-18T23:35:12", "event": "run_start", "url": "http://127.0.0.1:3101/mcp", "auth": false}
+{"ts": "2026-08-18T23:35:12", "event": "initialize_ok"}
+{"ts": "2026-08-18T23:35:12", "event": "list_tools", "count": 18, "missing": []}
+{"ts": "2026-08-18T23:35:13", "tool": "check_permissions", "ok": true, "result": "{\n  \"accessibility\": true,\n  \"screen_recording\": true,\n  \"note\": \"Grant both to the terminal app running the server under System Settings > Privacy & Security, then restart the server.\"\n}"}
+{"ts": "2026-08-18T23:35:13", "tool": "get_screen_size", "ok": true, "result": "{\n  \"width\": 1920,\n  \"height\": 1080\n}"}
+{"ts": "2026-08-18T23:35:13", "tool": "mouse_position", "ok": true, "result": "{\n  \"x\": 547,\n  \"y\": 373\n}"}
+{"ts": "2026-08-18T23:35:19", "tool": "list_windows", "ok": true, "result": "{\n  \"app\": \"Finder\",\n  \"title\": \"Desktop-MCP\",\n  \"x\": 922,\n  \"y\": 355,\n  \"width\": 920,\n  \"height\": 436\n} | {\n  \"app\": \"Finder\",\n  \"title\": \"YTMDownloader\",\n  \"x\": 703,\n  \"y\": 592,\n  \"width\": 920,\n  \"height\": 437\n} | {\n  \"app\": \"Finder\",\n  \"title\": \"jesus\",\n  \"x\": 134,\n  \"y\": 311,\n  \"width\": 920,\n  \"height\": 504\n} | {\n  \"app\": \"steam_osx\",\n  \"title\": \"\",\n  \"x\": -15000,\n  \"y\": 16079,\n  \"width\": 1,\n  \"height\": 1\n} | {\n  \"app\": \"launcher\",\n  \"title\": \"Minecraft Launcher\",\n  \"x\": 100,\n  \"y\": 30,\n  \"width\": 1280,\n  \"height\": 752\n} | {\n  \"app\": \"Unity Hub\",\n  \"title\": \"Unity Hub 3.21.0\",\n  \"x\": 90,\n  \"y\": 113,\n  \"width\": 1280,\n  \"height\": 720\n} | {\n  \"app\": \"GitHub Desktop\",\n  \"title\": \"GitHub Desktop\",\n  \"x\": 555,\n  \"y\": 164,\n  \"width\": 961,\n  \"height\": 660\n} | {\n  \"app\": \"ChatGPT\",\n  \"title\": \"ChatGPT\",\n  \"x\": 665,\n  \"y\": 38,\n  \"width\": 1152,\n  \"height\": 1000\n} | {\n  \"app\": \"Unity\",\n  \"title\": \"Menugame - jumpfall-source-code - Windows, Mac, Linux - Unity 6.3 LTS (6000.3.8f1) <Metal>\",\n  \"x\": 447,\n  \"y\": 98,\n  \"width\": 1189,\n  \"height\": 932\n} | {\n  \"app\": \"Terminal\",\n  \"title\": \"Desktop-MCP — OC | Creating or updating AGENTS.md — chrome-devtools-mcp ◂ opencode — 120×30\",\n  \"x\": 141,\n  \"y\": 34,\n  \"width\": 878,\n  \"height\": 500\n} | {\n  \"app\": \"iPhone Mirroring\",\n  \"title\": \"Duplicación del iPhone\",\n  \"x\": 1369,\n  \"y\": 89,\n  \"width\": 316,\n  \"height\": 696\n} | {\n  \"app\": \"zen\",\n  \"title\": \"LIZY P LE DA EL GOLPE DEFINITIVO A DALAS Y LO DEJA SOLO - YouTube\",\n  \"x\": 274,\n  \"y\": 226,\n  \"width\": 1368,\n  \"height\": 803\n} | {\n  \"app\": \"Code\",\n  \"title\": \"desktop_mcp.py — Desktop-MCP\",\n  \"x\": 536,\n  \"y\": 111,\n  \"width\": 1119,\n  \"height\": 1000\n} | {\n  \"app\": \"prl_client_app\",\n  \"title\": \"Windows 11\",\n  \"x\": 854,\n  \"y\": 30,\n  \"width\": 856,\n  \"height\": 1000\n}"}
+{"ts": "2026-08-18T23:35:19", "tool": "move_mouse", "ok": true, "result": "Mouse moved to (100, 100)", "note": "visible input event - cursor should have moved"}
+{"ts": "2026-08-18T23:35:19", "tool": "screenshot", "ok": false, "error": "SSE stream ended without a response"}
+{"ts": "2026-08-18T23:35:19", "event": "run_end"}
+{"ts": "2026-08-18T23:38:24", "event": "run_start", "url": "http://127.0.0.1:3101/mcp", "auth": false}
+{"ts": "2026-08-18T23:38:24", "event": "initialize_ok"}
+{"ts": "2026-08-18T23:38:24", "event": "list_tools", "count": 18, "missing": []}
+{"ts": "2026-08-18T23:38:24", "tool": "check_permissions", "ok": true, "result": "{\n  \"accessibility\": true,\n  \"screen_recording\": true,\n  \"note\": \"Grant both to the terminal app running the server under System Settings > Privacy & Security, then restart the server.\"\n}"}
+{"ts": "2026-08-18T23:38:24", "tool": "get_screen_size", "ok": true, "result": "{\n  \"width\": 1920,\n  \"height\": 1080\n}"}
+{"ts": "2026-08-18T23:38:24", "tool": "mouse_position", "ok": true, "result": "{\n  \"x\": 289,\n  \"y\": 26\n}"}
+{"ts": "2026-08-18T23:38:28", "tool": "list_windows", "ok": true, "result": "{\n  \"app\": \"Finder\",\n  \"title\": \"Desktop-MCP\",\n  \"x\": 922,\n  \"y\": 355,\n  \"width\": 920,\n  \"height\": 436\n} | {\n  \"app\": \"Finder\",\n  \"title\": \"YTMDownloader\",\n  \"x\": 703,\n  \"y\": 592,\n  \"width\": 920,\n  \"height\": 437\n} | {\n  \"app\": \"Finder\",\n  \"title\": \"jesus\",\n  \"x\": 134,\n  \"y\": 311,\n  \"width\": 920,\n  \"height\": 504\n} | {\n  \"app\": \"steam_osx\",\n  \"title\": \"\",\n  \"x\": -15000,\n  \"y\": 16079,\n  \"width\": 1,\n  \"height\": 1\n} | {\n  \"app\": \"launcher\",\n  \"title\": \"Minecraft Launcher\",\n  \"x\": 100,\n  \"y\": 30,\n  \"width\": 1280,\n  \"height\": 752\n} | {\n  \"app\": \"Unity Hub\",\n  \"title\": \"Unity Hub 3.21.0\",\n  \"x\": 90,\n  \"y\": 113,\n  \"width\": 1280,\n  \"height\": 720\n} | {\n  \"app\": \"GitHub Desktop\",\n  \"title\": \"GitHub Desktop\",\n  \"x\": 555,\n  \"y\": 164,\n  \"width\": 961,\n  \"height\": 660\n} | {\n  \"app\": \"ChatGPT\",\n  \"title\": \"ChatGPT\",\n  \"x\": 665,\n  \"y\": 38,\n  \"width\": 1152,\n  \"height\": 1000\n} | {\n  \"app\": \"Terminal\",\n  \"title\": \"Desktop-MCP — OC | Creating or updating AGENTS.md — chrome-devtools-mcp ◂ opencode — 120×30\",\n  \"x\": 141,\n  \"y\": 34,\n  \"width\": 878,\n  \"height\": 500\n} | {\n  \"app\": \"iPhone Mirroring\",\n  \"title\": \"Duplicación del iPhone\",\n  \"x\": 1369,\n  \"y\": 89,\n  \"width\": 316,\n  \"height\": 696\n} | {\n  \"app\": \"zen\",\n  \"title\": \"LIZY P LE DA EL GOLPE DEFINITIVO A DALAS Y LO DEJA SOLO - YouTube\",\n  \"x\": 274,\n  \"y\": 226,\n  \"width\": 1368,\n  \"height\": 803\n} | {\n  \"app\": \"Code\",\n  \"title\": \"desktop_mcp.py — Desktop-MCP\",\n  \"x\": 536,\n  \"y\": 111,\n  \"width\": 1119,\n  \"height\": 1000\n} | {\n  \"app\": \"prl_client_app\",\n  \"title\": \"Windows 11\",\n  \"x\": 215,\n  \"y\": 230,\n  \"width\": 1273,\n  \"height\": 807\n}"}
+{"ts": "2026-08-18T23:38:29", "tool": "move_mouse", "ok": true, "result": "Mouse moved to (100, 100)", "note": "visible input event - cursor should have moved"}
+{"ts": "2026-08-18T23:38:29", "tool": "screenshot", "ok": true, "bytes": 225849, "saved": "/Users/jesus/Desktop-MCP/test_screenshot.png"}
+{"ts": "2026-08-18T23:38:29", "event": "run_end"}
+
+# =============================================================================
+# RESUMEN PRIMERA TANDA - 2026-08-18 (pruebas basicas)
+# =============================================================================
+# Herramienta: test_client.py (cliente MCP streamable-http oficial del SDK).
+# Server probado: instancia nueva en puerto 3101 (la de 3001 corre el mismo codigo).
+# Entorno: macOS, terminal con Accessibility + Screen Recording (TCC concedido durante
+# la prueba; el primer screencapture fallo y el prompt de TCC se resolvio despues).
+#
+# RESULTADO: 18/18 tools OK.
+#   - initialize, list_tools: OK (18 tools, ninguna faltante).
+#   - check_permissions: accessibility=true, screen_recording=true.
+#   - get_screen_size: 1920x1080. mouse_position: OK.
+#   - list_windows: OK, 14 ventanas (Finder x3, steam_osx con coords basura -15000,16079,
+#     launcher, Unity Hub, GitHub Desktop, ChatGPT, Unity, Terminal, iPhone Mirroring,
+#     zen, Code, prl_client_app). Tarda ~6s: System Events enumera todas las apps.
+#   - move_mouse: OK (evento visible, cursor se movio a 100,100).
+#   - screenshot: OK - PNG 225849 bytes (1920x1080 RGBA, contenido real, no negro).
+#
+# BUGS ENCONTRADOS Y CORREGIDOS (ambos del harness/cliente, no del server):
+#   1. httpx2 (cliente del SDK mcp) limita eventos SSE a 1 MiB: screenshot con
+#      pantalla cargada generaba base64 >1MiB y moria con "SSE stream ended without
+#      a response" / "Server-sent event exceeded the 1048576 byte limit".
+#      FIX server-side: _encode_screenshot() - PNG; si base64 >700KB pasa a JPEG
+#      (q85/70/55) y downscale como ultimo recurso. Verificado con imagen ruidosa
+#      1920x1080: PNG 2.7MB -> JPEG 404KB.
+#   2. httpx2.AsyncClient() sin timeout explicito usa 5s de read: list_windows (6s)
+#      y screenshot lento morian con "SSE stream ended without a response".
+#      FIX: test_client.py usa Timeout(read=120s).
+#   Nota: curl confirmo que el server responde bien en ambos casos (200 SSE, imagen
+#   1.7MB en 0.19s) - el server nunca estuvo roto.
+#
+# PENDIENTE (no probado, requiere aprobacion del usuario por tocar el desktop activo):
+#   click, double_click, click_at, drag, scroll, type_text, press_key, hotkey,
+#   focus_window, move_window, resize_window, auth con token.
+#   Tambien: prueba del screenshot via el cliente real del usuario (opencode) y
+#   verificacion de que el cliente acepta la imagen JPEG del fallback.
+{"ts": "2026-08-19T00:07:11", "event": "run_start", "url": "http://127.0.0.1:3001/mcp", "auth": false}

@@ -1,0 +1,4 @@
+mcp==2.0.0
+pyautogui==0.9.54
+Pillow==12.3.0
+uvicorn==0.52.3
