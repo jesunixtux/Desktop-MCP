@@ -1,7 +1,7 @@
 """Test client for the Desktop MCP server (streamable-http).
 
 Usage:
-    .venv/bin/python test_client.py [--url http://127.0.0.1:3001/mcp] [--token TOKEN]
+    .venv\Scripts\python test_client.py [--url http://127.0.0.1:3001/mcp] [--token TOKEN]
 
 Runs a basic smoke suite: connect, list tools, permissions check, read-only
 tools, and one visible input event (move_mouse). Results are printed as JSON

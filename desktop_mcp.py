@@ -1,7 +1,7 @@
-"""Desktop MCP server: lets LLM models control the Mac via pyautogui + AppleScript.
+"""Desktop MCP server: lets LLM models control Windows via pyautogui + PowerShell.
 
 Run:
-    .venv/bin/python desktop_mcp.py
+    .venv\\Scripts\\python desktop_mcp.py
 
 Env vars (all optional):
     MCP_HOST      bind address, default 0.0.0.0
@@ -9,8 +9,8 @@ Env vars (all optional):
     MCP_PATH      MCP endpoint path, default /mcp
     MCP_AUTH_TOKEN  if set, clients must send `Authorization: Bearer <token>`
 
-macOS prerequisites: the terminal app running this server needs Accessibility
-(mouse/keyboard/windows) and Screen Recording (screenshot) permission.
+Windows: pyautogui works out of the box. No special permissions are needed
+(assume the server runs as a regular desktop user, not a UWP/sandboxed app).
 """
 
 from __future__ import annotations
@@ -117,50 +117,33 @@ def tool_safe(func):
     return wrapper
 
 
-def _osascript(script: str) -> str:
-    """Run an AppleScript snippet; raises actionable errors on permission/OS failures."""
+def _powershell(script: str) -> str:
+    """Run a PowerShell script; raises actionable errors on failure."""
     proc = subprocess.run(
-        ["osascript", "-e", script],
+        ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
         capture_output=True,
         text=True,
         timeout=20,
     )
     if proc.returncode != 0:
         err = proc.stderr.strip()
-        if "assistive access" in err or "-25211" in err:
-            raise PermissionError(
-                "Accessibility permission denied. Grant it to the terminal running this "
-                "server: System Settings > Privacy & Security > Accessibility."
-            )
-        raise RuntimeError(f"osascript failed: {err}")
+        raise RuntimeError(f"PowerShell failed: {err}")
     return proc.stdout
 
 
-def _q(s: str) -> str:
-    """Escape a string for safe embedding in AppleScript double quotes."""
-    return s.replace("\\", "\\\\").replace('"', '\\"')
+def _ps_quote(s: str) -> str:
+    """Escape a string for safe embedding in a PowerShell single-quoted string."""
+    return s.replace("'", "''")
 
 
 def _accessibility_granted() -> bool:
-    try:
-        proc = subprocess.run(
-            ["osascript", "-e", 'tell application "System Events" to get name of first process'],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-        return proc.returncode == 0
-    except Exception:
-        return False
+    """On Windows, pyautogui works without special accessibility permissions."""
+    return True
 
 
 def _screen_recording_granted() -> bool:
-    try:
-        import Quartz
-
-        return bool(Quartz.CGPreflightScreenCaptureAccess())
-    except Exception:
-        return False
+    """On Windows, pyautogui.screenshot() works without special permissions."""
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -343,18 +326,22 @@ def type_text(
     """Type text using the keyboard.
 
     ASCII text is typed character by character. Non-ASCII text (accents, symbols, emoji)
-    cannot be typed by pyautogui, so it is copied to the clipboard and pasted with Cmd+V.
+    cannot be typed by pyautogui, so it is copied to the clipboard and pasted with Ctrl+V.
     """
 
     if text.isascii():
         pyautogui.write(text, interval=interval)
         return f"Typed {len(text)} characters"
 
-    proc = subprocess.run(["pbcopy"], input=text.encode("utf-8"), timeout=10)
+    proc = subprocess.run(
+        ["clip"],
+        input=text.encode("utf-16le"),
+        timeout=10,
+    )
     if proc.returncode != 0:
-        raise RuntimeError("Failed to copy text to the clipboard (pbcopy).")
+        raise RuntimeError("Failed to copy text to the clipboard (clip).")
 
-    pyautogui.hotkey("cmd", "v")
+    pyautogui.hotkey("ctrl", "v")
 
     return f"Pasted {len(text)} characters via clipboard (non-ASCII text)"
 
@@ -372,7 +359,7 @@ def press_key(key: str) -> str:
 @mcp.tool()
 @tool_safe
 def hotkey(keys: list[str]) -> str:
-    """Press a keyboard shortcut (e.g. ['cmd', 'c'] for copy, ['cmd', 'shift', '4'] for screenshot)."""
+    """Press a keyboard shortcut (e.g. ['ctrl', 'c'] for copy, ['alt', 'tab'] to switch windows)."""
 
     pyautogui.hotkey(*keys)
 
@@ -380,7 +367,7 @@ def hotkey(keys: list[str]) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Window management (macOS / AppleScript)
+# Window management (Windows / PowerShell)
 # ---------------------------------------------------------------------------
 
 
@@ -390,27 +377,27 @@ def list_windows() -> list[dict]:
     """List open app windows: app name, title, position (x, y), size (width, height)."""
 
     script = """
-    tell application "System Events"
-      set out to ""
-      repeat with p in (every process whose background only is false)
-        try
-          set appName to name of p
-          repeat with w in (every window of p)
-            try
-              set wName to name of w
-              set {wx, wy} to position of w
-              set {ww, wh} to size of w
-              set out to out & appName & tab & wName & tab & (wx as text) & tab & (wy as text) & tab & (ww as text) & tab & (wh as text) & linefeed
-            end try
-          end repeat
-        end try
-      end repeat
-      return out
-    end tell
+    Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class WinAPI {
+        [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
+    }
+    "@
+    $procs = Get-Process | Where-Object { $_.MainWindowTitle -ne '' -and $_.MainWindowHandle -ne [IntPtr]::Zero }
+    foreach ($p in $procs) {
+        $rect = New-Object WinAPI+RECT
+        [WinAPI]::GetWindowRect($p.MainWindowHandle, [ref]$rect) | Out-Null
+        $w = $rect.Right - $rect.Left
+        $h = $rect.Bottom - $rect.Top
+        Write-Output ("{0}`t{1}`t{2}`t{3}`t{4}`t{5}" -f $p.ProcessName, $p.MainWindowTitle, $rect.Left, $rect.Top, $w, $h)
+    }
     """
 
     windows = []
-    for line in _osascript(script).splitlines():
+    for line in _powershell(script).splitlines():
         fields = line.split("\t")
         if len(fields) != 6:
             continue
@@ -435,18 +422,26 @@ def focus_window(
 ) -> str:
     """Bring an app to the front; optionally raise a specific window of that app by title.
 
-    `app` must be the process name as reported by list_windows (e.g. 'Safari').
+    `app` must be the process name as reported by list_windows (e.g. 'notepad').
     """
 
-    script = f'tell application "System Events" to set frontmost of process "{_q(app)}" to true'
-
     if title:
-        script += (
-            f'\ntell application "System Events" to perform action "AXRaise" of '
-            f'(first window of process "{_q(app)}" whose name is "{_q(title)}")'
+        script = (
+            f"$p = Get-Process -Name '{_ps_quote(app)}' | Where-Object {{ $_.MainWindowTitle -eq '{_ps_quote(title)}' }};"
+            "if ($p) { $p | ForEach-Object { $_.MainWindowHandle } | ForEach-Object { "
+            "Add-Type -Name W -N 'U' -MemberDefinition '[DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr h);'; "
+            " [U]::SetForegroundWindow($_) } }"
+        )
+    else:
+        script = (
+            f"$p = Get-Process -Name '{_ps_quote(app)}' -ErrorAction Stop;"
+            "$h = ($p | Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero } | Select-Object -First 1).MainWindowHandle;"
+            "if ($h -ne [IntPtr]::Zero) { "
+            "Add-Type -Name W -N 'U' -MemberDefinition '[DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr h);'; "
+            " [U]::SetForegroundWindow($h) }"
         )
 
-    _osascript(script)
+    _powershell(script)
 
     return f"Focused {app}" + (f" (window: {title})" if title else "")
 
@@ -464,13 +459,35 @@ def move_window(
     Moves the front window unless `title` is given (must match list_windows output).
     """
 
-    window = f'window "{_q(title)}"' if title else "front window"
-    script = (
-        f'tell application "System Events" to tell process "{_q(app)}" '
-        f"to set position of {window} to {{{x}, {y}}}"
+    where = (
+        f"Where-Object {{ $_.MainWindowTitle -eq '{_ps_quote(title)}' }}"
+        if title
+        else "Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero } | Select-Object -First 1"
     )
 
-    _osascript(script)
+    script = (
+        "$code = @'\n"
+        "using System;\n"
+        "using System.Runtime.InteropServices;\n"
+        "public class WP {\n"
+        "  [DllImport(\"user32.dll\")] public static extern bool MoveWindow(IntPtr h, int x, int y, int w, int h2, bool r);\n"
+        "  [DllImport(\"user32.dll\")] public static extern bool GetWindowRect(IntPtr h, out RECT r);\n"
+        "  [StructLayout(LayoutKind.Sequential)] public struct RECT { public int L; public int T; public int R; public int B; }\n"
+        "}\n"
+        "'@\n"
+        "Add-Type $code\n"
+        f"$p = Get-Process -Name '{_ps_quote(app)}' -ErrorAction Stop | {where};\n"
+        "if ($p) {\n"
+        "  $h = $p.MainWindowHandle\n"
+        "  $rect = New-Object WP+RECT\n"
+        "  [WP]::GetWindowRect($h, [ref]$rect) | Out-Null\n"
+        "  $w = $rect.R - $rect.L\n"
+        "  $ht = $rect.B - $rect.T\n"
+        "  [WP]::MoveWindow($h, $x, $y, $w, $ht, $true) | Out-Null\n"
+        "}\n"
+    )
+
+    _powershell(script)
 
     return f"Moved {app} window to ({x}, {y})"
 
@@ -491,13 +508,33 @@ def resize_window(
     if width < 1 or height < 1:
         raise ValueError("width and height must be >= 1.")
 
-    window = f'window "{_q(title)}"' if title else "front window"
-    script = (
-        f'tell application "System Events" to tell process "{_q(app)}" '
-        f"to set size of {window} to {{{width}, {height}}}"
+    where = (
+        f"Where-Object {{ $_.MainWindowTitle -eq '{_ps_quote(title)}' }}"
+        if title
+        else "Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero } | Select-Object -First 1"
     )
 
-    _osascript(script)
+    script = (
+        "$code = @'\n"
+        "using System;\n"
+        "using System.Runtime.InteropServices;\n"
+        "public class WR {\n"
+        "  [DllImport(\"user32.dll\")] public static extern bool MoveWindow(IntPtr h, int x, int y, int w, int h2, bool r);\n"
+        "  [DllImport(\"user32.dll\")] public static extern bool GetWindowRect(IntPtr h, out RECT r);\n"
+        "  [StructLayout(LayoutKind.Sequential)] public struct RECT { public int L; public int T; public int R; public int B; }\n"
+        "}\n"
+        "'@\n"
+        "Add-Type $code\n"
+        f"$p = Get-Process -Name '{_ps_quote(app)}' -ErrorAction Stop | {where};\n"
+        "if ($p) {\n"
+        "  $h = $p.MainWindowHandle\n"
+        "  $rect = New-Object WR+RECT\n"
+        "  [WR]::GetWindowRect($h, [ref]$rect) | Out-Null\n"
+        "  [WR]::MoveWindow($h, $rect.L, $rect.T, $width, $height, $true) | Out-Null\n"
+        "}\n"
+    )
+
+    _powershell(script)
 
     return f"Resized {app} window to {width}x{height}"
 
@@ -510,23 +547,16 @@ def resize_window(
 @mcp.tool()
 @tool_safe
 def check_permissions() -> dict:
-    """Check macOS permissions needed by this server.
+    """Check that this server can run on Windows.
 
-    Accessibility (mouse, keyboard, window control) and Screen Recording (screenshot).
-    If one is false, grant it to the terminal app running the server in
-    System Settings > Privacy & Security, then restart the server.
+    On Windows, pyautogui works without special permissions as long as the
+    server runs as a regular desktop user (not sandboxed/UWP).
     """
 
-    screen = _screen_recording_granted()
-    accessibility = _accessibility_granted()
-
     return {
-        "accessibility": accessibility,
-        "screen_recording": screen,
-        "note": (
-            "Grant both to the terminal app running the server under "
-            "System Settings > Privacy & Security, then restart the server."
-        ),
+        "accessibility": True,
+        "screen_recording": True,
+        "note": "Windows: no special permissions needed. Server must run as a regular desktop user.",
     }
 
 
@@ -572,17 +602,6 @@ def main() -> None:
         MCP_PATH,
         " (auth: Bearer token required)" if AUTH_TOKEN else " (WARNING: no auth token - set MCP_AUTH_TOKEN)",
     )
-
-    if _screen_recording_granted() is False:
-        logger.warning(
-            "Screen Recording permission is missing - screenshot() will fail. "
-            "Grant it to this terminal in System Settings > Privacy & Security > Screen Recording."
-        )
-    if not _accessibility_granted():
-        logger.warning(
-            "Accessibility permission is missing - mouse, keyboard and window tools will fail. "
-            "Grant it to this terminal in System Settings > Privacy & Security > Accessibility."
-        )
 
     uvicorn.run(app, host=HOST, port=PORT, log_level="info")
 
